@@ -2,24 +2,27 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import { ArrowLeft, Calendar, User, Clock } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
-import { blogPosts } from "@/data/blogPosts";
+import { useFirestoreBlogs } from "@/hooks/useFirestoreBlogs";
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const post = blogPosts.find((p) => p.slug === slug);
+  const { blogs, loading } = useFirestoreBlogs();
+  const post = blogs.find((p) => p.slug === slug);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
+  }
 
   if (!post) return <Navigate to="/blog" replace />;
 
-  const relatedPosts = blogPosts.filter((p) => p.id !== post.id).slice(0, 2);
+  const relatedPosts = blogs.filter((p) => p.id !== post.id).slice(0, 2);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="Curbside Distribution" className="h-10 w-10 rounded object-contain" />
-            <span className="font-bold text-lg text-foreground">Curbside Distribution</span>
+          <Link to="/">
+            <img src={logo} alt="Curbside Distribution" className="h-12 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-4">
             <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">All Articles</Link>
@@ -29,7 +32,6 @@ const BlogPost = () => {
       </nav>
 
       <main className="pt-16">
-        {/* Hero */}
         <div className="relative h-64 md:h-96">
           <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-transparent" />
@@ -42,7 +44,6 @@ const BlogPost = () => {
           </div>
         </div>
 
-        {/* Content */}
         <article className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex items-center gap-6 text-sm text-muted-foreground mb-8 border-b pb-6">
             <span className="flex items-center gap-1"><User className="h-4 w-4" /> {post.author}</span>
@@ -78,7 +79,6 @@ const BlogPost = () => {
             })}
           </div>
 
-          {/* CTA */}
           <div className="bg-primary rounded-lg p-8 mt-12 text-center">
             <h3 className="text-2xl font-bold text-primary-foreground mb-3">Need a Reliable Produce Supplier?</h3>
             <p className="text-primary-foreground/80 mb-6">Get competitive wholesale pricing with same-day delivery across the NYC metro area.</p>
@@ -87,7 +87,6 @@ const BlogPost = () => {
             </Link>
           </div>
 
-          {/* Related */}
           {relatedPosts.length > 0 && (
             <div className="mt-16">
               <h3 className="text-2xl font-bold text-foreground mb-6">Related Articles</h3>

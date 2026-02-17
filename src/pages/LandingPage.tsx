@@ -1,66 +1,83 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Truck, Clock, ShieldCheck, Leaf, Phone, MapPin, Mail, ChevronRight } from "lucide-react";
+import { ArrowRight, Truck, Clock, ShieldCheck, Leaf, Phone, MapPin, Mail, ChevronRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import logo from "@/assets/logo.png";
-import heroImage from "@/assets/hero-produce.jpg";
-import { blogPosts } from "@/data/blogPosts";
+import heroChef from "@/assets/hero-chef.jpg";
+import deliveryTruck from "@/assets/delivery-truck.jpg";
+import produceSpread from "@/assets/produce-spread.jpg";
+import restaurantDining from "@/assets/restaurant-dining.jpg";
+import supermarketProduce from "@/assets/supermarket-produce.jpg";
+import warehouseProduce from "@/assets/warehouse-produce.jpg";
+import { useFirestoreBlogs } from "@/hooks/useFirestoreBlogs";
 
 const LandingPage = () => {
-  const featuredBlogs = blogPosts.slice(0, 3);
+  const { blogs } = useFirestoreBlogs();
+  const featuredBlogs = blogs.slice(0, 3);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="Curbside Distribution - NYC Wholesale Produce" className="h-10 w-10 rounded object-contain" />
-            <span className="font-bold text-lg text-foreground">Curbside Distribution</span>
+          <Link to="/">
+            <img src={logo} alt="Curbside Distribution - NYC Wholesale Produce" className="h-12 w-auto object-contain" />
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="#services" className="hover:text-foreground transition-colors">Services</a>
-            <a href="#coverage" className="hover:text-foreground transition-colors">Coverage</a>
-            <a href="#blog" className="hover:text-foreground transition-colors">Blog</a>
-            <a href="#contact" className="hover:text-foreground transition-colors">Contact</a>
+            <a href="#services" className="hover:text-foreground transition-colors">Products We Offer</a>
+            <a href="#delivery" className="hover:text-foreground transition-colors">How We Deliver</a>
+            <a href="#industries" className="hover:text-foreground transition-colors">Industries</a>
+            <a href="#blog" className="hover:text-foreground transition-colors">Tips & Ideas</a>
           </div>
-          <Link to="/order">
-            <Button className="font-semibold">
-              Order Now <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
-          </Link>
+          <div className="hidden md:flex items-center gap-3">
+            <Link to="/order">
+              <Button variant="outline" className="font-semibold border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                Browse Products
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button className="font-semibold">
+                Become a Customer
+              </Button>
+            </Link>
+          </div>
+          <button className="md:hidden text-foreground" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-card border-t p-4 space-y-3">
+            <a href="#services" className="block text-sm text-foreground py-2" onClick={() => setMobileMenuOpen(false)}>Products We Offer</a>
+            <a href="#delivery" className="block text-sm text-foreground py-2" onClick={() => setMobileMenuOpen(false)}>How We Deliver</a>
+            <a href="#industries" className="block text-sm text-foreground py-2" onClick={() => setMobileMenuOpen(false)}>Industries</a>
+            <a href="#blog" className="block text-sm text-foreground py-2" onClick={() => setMobileMenuOpen(false)}>Tips & Ideas</a>
+            <Link to="/order" className="block"><Button variant="outline" className="w-full font-semibold border-primary text-primary">Browse Products</Button></Link>
+            <Link to="/login" className="block"><Button className="w-full font-semibold">Become a Customer</Button></Link>
+          </div>
+        )}
       </nav>
 
-      {/* Hero Section */}
-      <header className="relative pt-16 overflow-hidden">
-        <div className="absolute inset-0 pt-16">
-          <img src={heroImage} alt="Fresh wholesale produce - fruits and vegetables" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/70 to-foreground/40" />
-        </div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-36">
-          <div className="max-w-2xl">
-            <p className="text-primary-foreground/80 font-medium text-sm uppercase tracking-widest mb-4">
-              NYC Metro Area's Trusted Produce Wholesaler
-            </p>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight mb-6">
-              Fresh Wholesale{" "}
-              <span className="text-primary">Fruits & Vegetables</span>{" "}
-              for NYC Restaurants
-            </h1>
-            <p className="text-primary-foreground/80 text-lg md:text-xl mb-8 leading-relaxed">
-              Bulk produce distribution serving restaurants, supermarkets, and grocery stores across Manhattan, Brooklyn, Queens, Bronx, Long Island, and New Jersey. Same-day delivery with competitive pricing.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/order">
-                <Button size="lg" className="text-base font-semibold px-8 py-6">
-                  Start Ordering <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-              </Link>
-              <a href="tel:+17185551234">
-                <Button size="lg" variant="outline" className="text-base font-semibold px-8 py-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
-                  <Phone className="h-5 w-5 mr-2" /> Call (718) 555-1234
-                </Button>
-              </a>
+      {/* Hero Section — Full-bleed image with bold text overlay */}
+      <header className="relative pt-16">
+        <div className="relative h-[70vh] min-h-[500px]">
+          <img src={heroChef} alt="Professional chef preparing fresh wholesale produce in restaurant kitchen" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/85 via-foreground/60 to-transparent" />
+          <div className="absolute inset-0 flex items-center">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+              <div className="max-w-2xl">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[0.95] mb-6 uppercase tracking-tight">
+                  More Ways to<br />Help You<br /><span className="text-primary">Make It</span>
+                </h1>
+                <p className="text-white/80 text-lg md:text-xl mb-8 leading-relaxed max-w-lg">
+                  With top produce portfolios, same-day delivery, and all-around flexibility, we're ready to be your partner in the food business.
+                </p>
+                <Link to="/login">
+                  <Button size="lg" className="text-base font-semibold px-8 py-6 rounded-full">
+                    Become a Customer <ArrowRight className="h-5 w-5 ml-2" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -76,8 +93,73 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Delivery Section — Colored bg with image cards (US Foods inspired) */}
+      <section id="delivery" className="bg-primary py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-4xl md:text-5xl font-black text-white uppercase leading-[0.95] mb-4">
+                More<br />Quality
+              </h2>
+              <p className="text-white/80 text-lg mb-8 leading-relaxed">
+                An unmatched portfolio of quality wholesale produce for restaurants and supermarkets that consistently delivers on expectations across the NYC metro area.
+              </p>
+              <Link to="/order">
+                <Button variant="secondary" className="rounded-full font-semibold px-6">
+                  Products We Offer <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <img src={deliveryTruck} alt="Scheduled wholesale produce delivery truck NYC" className="rounded-lg w-full aspect-[4/3] object-cover" loading="lazy" />
+                <h3 className="text-white font-bold">Scheduled <ChevronRight className="inline h-4 w-4" /></h3>
+                <p className="text-white/70 text-sm">Premium products delivered with consistency to restaurants across all five boroughs.</p>
+              </div>
+              <div className="space-y-3">
+                <img src={warehouseProduce} alt="Daily wholesale produce distribution warehouse" className="rounded-lg w-full aspect-[4/3] object-cover" loading="lazy" />
+                <h3 className="text-white font-bold">Daily <ChevronRight className="inline h-4 w-4" /></h3>
+                <p className="text-white/70 text-sm">Flexible delivery customized to meet your specific needs across the tri-state area.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Industries Section — Image-heavy cards */}
+      <section id="industries" className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground italic mb-3">
+              More solutions, across every industry
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Our centralized systems allow us to serve a variety of businesses with tools and resources — allowing you to maximize coverage and enable flexibility as you grow.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { title: "Restaurants", img: restaurantDining, desc: "Fresh wholesale produce for NYC restaurants with same-day delivery and competitive bulk pricing." },
+              { title: "Supermarkets", img: supermarketProduce, desc: "Consistent supply of wholesale fruits and vegetables for grocery stores across the tri-state area." },
+              { title: "Catering", img: heroChef, desc: "Bulk produce supply for catering companies and event venues throughout the NY metro area." },
+              { title: "Hospitality", img: produceSpread, desc: "Farm-fresh produce for hotels, banquet halls, and hospitality businesses in New York City." },
+            ].map((item) => (
+              <div key={item.title} className="group">
+                <div className="aspect-[3/4] overflow-hidden rounded-lg mb-3">
+                  <img src={item.img} alt={`${item.title} - wholesale produce supply NYC`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                </div>
+                <h3 className="font-bold text-foreground flex items-center gap-1">
+                  {item.title} <ChevronRight className="h-4 w-4" />
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Services / Why Us */}
-      <section id="services" className="py-20 bg-background">
+      <section id="services" className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -89,36 +171,12 @@ const LandingPage = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              {
-                icon: "🚛",
-                title: "Tri-State Area Delivery",
-                desc: "Wholesale fruits and vegetables delivery across Bronx, Queens, Brooklyn, Manhattan, Long Island, and New Jersey. Reliable logistics for supermarkets and restaurants.",
-              },
-              {
-                icon: "💰",
-                title: "Competitive Bulk Pricing",
-                desc: "Restaurant supply produce distributor with NYC's most competitive pricing. We source directly from Hunts Point Produce Market and local farms to keep costs low.",
-              },
-              {
-                icon: "🌿",
-                title: "Farm-Fresh Quality",
-                desc: "Direct farm-to-restaurant produce suppliers servicing New York. From organic wholesale to ethnic specialty produce, we stock 500+ items daily.",
-              },
-              {
-                icon: "⚡",
-                title: "Same-Day Manhattan Delivery",
-                desc: "Manhattan restaurant fruit and vegetable supplier with same-day delivery. Order by 6 AM for noon delivery across all five boroughs.",
-              },
-              {
-                icon: "📦",
-                title: "Cash & Carry Available",
-                desc: "Visit our cash and carry produce market for NYC restaurant owners. Hand-pick your produce or use our convenient online ordering platform.",
-              },
-              {
-                icon: "🤝",
-                title: "Dedicated Account Managers",
-                desc: "Every commercial produce supplier client in the NYC food service industry gets a dedicated account manager for personalized service.",
-              },
+              { icon: "🚛", title: "Tri-State Area Delivery", desc: "Wholesale fruits and vegetables delivery across Bronx, Queens, Brooklyn, Manhattan, Long Island, and New Jersey." },
+              { icon: "💰", title: "Competitive Bulk Pricing", desc: "We source directly from Hunts Point Produce Market and local farms to keep costs low for your business." },
+              { icon: "🌿", title: "Farm-Fresh Quality", desc: "Direct farm-to-restaurant produce with 500+ items daily including organic and ethnic specialty options." },
+              { icon: "⚡", title: "Same-Day Delivery", desc: "Manhattan restaurant fruit and vegetable supplier with same-day delivery. Order by 6 AM for noon delivery." },
+              { icon: "📦", title: "Cash & Carry Available", desc: "Visit our cash and carry produce market or use our convenient online ordering platform." },
+              { icon: "🤝", title: "Dedicated Account Managers", desc: "Every commercial produce supplier client gets a dedicated account manager for personalized service." },
             ].map((item) => (
               <div key={item.title} className="bg-card border rounded-lg p-8 hover:shadow-lg transition-shadow">
                 <span className="text-4xl mb-4 block">{item.icon}</span>
@@ -131,15 +189,18 @@ const LandingPage = () => {
       </section>
 
       {/* Coverage Area */}
-      <section id="coverage" className="py-20 bg-secondary">
+      <section className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <img src={warehouseProduce} alt="Wholesale produce warehouse NYC metro area" className="rounded-lg w-full aspect-video object-cover" loading="lazy" />
+            </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
                 Serving the Entire NY Metro Area
               </h2>
-              <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                As a premier New York City restaurant produce distributor, we deliver fresh vegetables and fruits to businesses across the tri-state area. From Hunts Point in the Bronx to Long Island supermarkets, we've got you covered.
+              <p className="text-muted-foreground text-lg mb-8 leading-relaxed text-muted-foreground">
+                As a premier New York City restaurant produce distributor, we deliver fresh vegetables and fruits to businesses across the tri-state area.
               </p>
               <ul className="space-y-4">
                 {[
@@ -157,29 +218,12 @@ const LandingPage = () => {
                 ))}
               </ul>
             </div>
-            <div className="bg-card border rounded-lg p-8 space-y-6">
-              <h3 className="text-2xl font-bold text-foreground">Get a Quote Today</h3>
-              <p className="text-muted-foreground">Tell us about your business and we'll set up your wholesale produce account with competitive pricing tailored to your volume.</p>
-              <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                <input type="text" placeholder="Business Name" className="w-full border rounded-md px-4 py-3 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                <input type="email" placeholder="Email Address" className="w-full border rounded-md px-4 py-3 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                <input type="tel" placeholder="Phone Number" className="w-full border rounded-md px-4 py-3 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring" />
-                <select className="w-full border rounded-md px-4 py-3 bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
-                  <option value="">Business Type</option>
-                  <option value="restaurant">Restaurant</option>
-                  <option value="supermarket">Supermarket / Grocery Store</option>
-                  <option value="catering">Catering Company</option>
-                  <option value="other">Other Food Service</option>
-                </select>
-                <Button className="w-full py-6 text-base font-semibold">Request Quote</Button>
-              </form>
-            </div>
           </div>
         </div>
       </section>
 
       {/* Blog Preview */}
-      <section id="blog" className="py-20 bg-background">
+      <section id="blog" className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-12">
             <div>
@@ -224,12 +268,12 @@ const LandingPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/order">
-              <Button size="lg" variant="secondary" className="text-base font-semibold px-8 py-6">
+              <Button size="lg" variant="secondary" className="text-base font-semibold px-8 py-6 rounded-full">
                 Start Ordering Online <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </Link>
             <a href="tel:+17185551234">
-              <Button size="lg" variant="outline" className="text-base font-semibold px-8 py-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+              <Button size="lg" variant="outline" className="text-base font-semibold px-8 py-6 rounded-full border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
                 <Phone className="h-5 w-5 mr-2" /> Call Us Now
               </Button>
             </a>
@@ -242,10 +286,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <img src={logo} alt="Curbside Distribution" className="h-10 w-10 rounded object-contain" />
-                <span className="font-bold text-foreground">Curbside Distribution</span>
-              </div>
+              <img src={logo} alt="Curbside Distribution" className="h-12 w-auto object-contain mb-4" />
               <p className="text-sm text-muted-foreground leading-relaxed">
                 NYC metro area's trusted wholesale produce distributor. Fresh fruits and vegetables for restaurants, supermarkets, and food service businesses.
               </p>

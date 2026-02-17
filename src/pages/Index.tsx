@@ -1,15 +1,20 @@
 import { useState, useMemo } from "react";
+import { Navigate } from "react-router-dom";
 import TopBar from "@/components/TopBar";
 import Sidebar from "@/components/Sidebar";
 import ProductRow from "@/components/ProductRow";
 import CartPanel from "@/components/CartPanel";
-import { products } from "@/data/products";
+import { useFirestoreProducts } from "@/hooks/useFirestoreProducts";
+import { useAuth } from "@/context/AuthContext";
 
 const Index = () => {
+  const { user, loading: authLoading } = useAuth();
+  const { products, categories, sellers, loading } = useFirestoreProducts();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSellers, setSelectedSellers] = useState<string[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleSellerToggle = (seller: string) => {
     setSelectedSellers((prev) =>
@@ -27,23 +32,42 @@ const Index = () => {
       }
       return true;
     });
-  }, [searchQuery, selectedCategory, selectedSellers]);
+  }, [searchQuery, selectedCategory, selectedSellers, products]);
+
+  if (authLoading) {
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <TopBar onCartClick={() => setCartOpen(true)} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <TopBar
+        onCartClick={() => setCartOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onMobileMenuToggle={() => setSidebarOpen(!sidebarOpen)}
+      />
       <Sidebar
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
         selectedSellers={selectedSellers}
         onSellerToggle={handleSellerToggle}
+        categories={categories}
+        sellers={sellers}
+        mobileOpen={sidebarOpen}
+        onMobileClose={() => setSidebarOpen(false)}
       />
 
       <main className="pt-14 md:pl-60">
         <div className="p-4 border-b flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">{filtered.length}</span> products
-            {selectedCategory && <span> in <span className="font-medium text-foreground">{selectedCategory}</span></span>}
+            {loading ? "Loading products..." : (
+              <>Showing <span className="font-medium text-foreground">{filtered.length}</span> products
+              {selectedCategory && <span> in <span className="font-medium text-foreground">{selectedCategory}</span></span>}</>
+            )}
           </p>
           <p className="text-xs text-muted-foreground">Sort by: Favorites</p>
         </div>
@@ -52,7 +76,7 @@ const Index = () => {
           {filtered.map((product) => (
             <ProductRow key={product.id} product={product} />
           ))}
-          {filtered.length === 0 && (
+          {!loading && filtered.length === 0 && (
             <p className="text-center text-muted-foreground py-16">No products found</p>
           )}
         </div>
