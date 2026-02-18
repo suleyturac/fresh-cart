@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import BlogList from "./pages/BlogList";
 import BlogPost from "./pages/BlogPost";
 import LoginPage from "./pages/LoginPage";
+import LocationPage from "./pages/LocationPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/login" element={<LoginPage />} />
               <Route path="/blog" element={<BlogList />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/:slug" element={<LocationPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
