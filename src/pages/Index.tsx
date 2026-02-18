@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { Navigate } from "react-router-dom";
 import TopBar from "@/components/TopBar";
 import Sidebar from "@/components/Sidebar";
 import ProductRow from "@/components/ProductRow";
@@ -38,9 +37,7 @@ const Index = () => {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  // Allow guest access - no redirect to login
 
   return (
     <div className="min-h-screen bg-background">

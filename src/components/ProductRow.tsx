@@ -8,7 +8,7 @@ interface ProductRowProps {
 }
 
 const ProductRow = ({ product }: ProductRowProps) => {
-  const [qty, setQty] = useState(0);
+  const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const { addToCart } = useCart();
 

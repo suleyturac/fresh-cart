@@ -22,7 +22,7 @@ const BlogPost = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           <Link to="/">
-            <img src={logo} alt="Curbside Distribution" className="h-12 w-auto object-contain" />
+            <img src={logo} alt="Curbside Produce" className="h-14 w-auto object-contain" />
           </Link>
           <div className="flex items-center gap-4">
             <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">All Articles</Link>

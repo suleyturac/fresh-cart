@@ -44,7 +44,7 @@ const TopBar = ({ onCartClick, searchQuery, onSearchChange, onMobileMenuToggle }
       </button>
 
       <Link to="/">
-        <img src={logo} alt="Curbside Distribution" className="h-10 w-auto object-contain" />
+        <img src={logo} alt="Curbside Produce" className="h-12 w-auto object-contain" />
       </Link>
 
       <div className="flex-1 max-w-lg relative ml-3">
