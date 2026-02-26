@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
-import { Search, Menu, LogOut, User } from "lucide-react";
+import { Search, Menu, LogOut, User, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import logo from "@/assets/logo.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { ShoppingCart } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TopBarProps {
   onCartClick: () => void;
@@ -18,10 +25,10 @@ interface TopBarProps {
 const TopBar = ({ onCartClick, searchQuery, onSearchChange, onMobileMenuToggle }: TopBarProps) => {
   const { totalItems, totalPrice } = useCart();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [bouncing, setBouncing] = useState(false);
   const [prevItems, setPrevItems] = useState(totalItems);
 
-  // Cart bounce animation when items change
   useEffect(() => {
     if (totalItems > prevItems) {
       setBouncing(true);
@@ -35,6 +42,7 @@ const TopBar = ({ onCartClick, searchQuery, onSearchChange, onMobileMenuToggle }
   const handleLogout = async () => {
     await logout();
     toast.success("Signed out successfully");
+    navigate("/login");
   };
 
   return (
@@ -58,20 +66,30 @@ const TopBar = ({ onCartClick, searchQuery, onSearchChange, onMobileMenuToggle }
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        {user && (
-          <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
-            <User className="h-4 w-4" />
-            <span className="truncate max-w-[120px]">{user.email}</span>
-          </div>
-        )}
-        {user && (
-          <button
-            onClick={handleLogout}
-            className="text-muted-foreground hover:text-foreground transition-colors"
-            title="Sign out"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
+        {user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <User className="h-4 w-4" />
+              <span className="truncate max-w-[120px]">{user.email}</span>
+              <ChevronDown className="h-3 w-3" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate("/account")}>
+                My Account
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/account")}>
+                Order History
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-destructive">
+                <LogOut className="h-4 w-4 mr-2" /> Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link to="/login" className="hidden sm:flex items-center gap-1 text-sm text-primary hover:underline">
+            <User className="h-4 w-4" /> Sign In
+          </Link>
         )}
         <button
           onClick={onCartClick}

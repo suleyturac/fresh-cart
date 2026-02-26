@@ -1,9 +1,12 @@
 import { X, Trash2, Plus, Minus } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 interface CartPanelProps {
   open: boolean;
@@ -12,23 +15,75 @@ interface CartPanelProps {
 
 const CartPanel = ({ open, onClose }: CartPanelProps) => {
   const { items, removeFromCart, updateQuantity, totalPrice, totalItems, clearCart } = useCart();
+  const { user } = useAuth();
   const [showCheckout, setShowCheckout] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     businessName: "", address: "", city: "", state: "", zip: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Calculate delivery date
+  const getDeliveryDate = (): string => {
+    const now = new Date();
+    const estOffset = -5;
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const est = new Date(utc + 3600000 * estOffset);
+    const cutoff = 14;
+    const skip = est.getHours() < cutoff ? 1 : 2;
+    const d = new Date(est);
+    let added = 0;
+    while (added < skip) {
+      d.setDate(d.getDate() + 1);
+      if (d.getDay() !== 0 && d.getDay() !== 6) added++;
+    }
+    return d.toISOString().split("T")[0];
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.firstName || !form.lastName || !form.email || !form.phone || !form.address || !form.city || !form.state || !form.zip) {
       toast.error("Please fill in all required fields");
       return;
     }
-    toast.success("Order submitted successfully! We'll contact you shortly.");
-    clearCart();
-    setShowCheckout(false);
-    onClose();
+    setSubmitting(true);
+    try {
+      const orderData = {
+        userId: user?.uid || "guest",
+        userEmail: user?.email || form.email,
+        status: "new",
+        items: items.map((i) => ({
+          productId: i.product.id,
+          name: i.product.name,
+          sku: i.product.sku,
+          quantity: i.quantity,
+          totalPrice: i.product.totalPrice,
+        })),
+        total: totalPrice,
+        deliveryDate: getDeliveryDate(),
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        businessName: form.businessName,
+        address: form.address,
+        city: form.city,
+        state: form.state,
+        zip: form.zip,
+        createdAt: serverTimestamp(),
+      };
+      await addDoc(collection(db, "orders"), orderData);
+      toast.success("Order submitted successfully! We'll contact you shortly.");
+      clearCart();
+      setShowCheckout(false);
+      onClose();
+    } catch (err: any) {
+      console.error("Order submission failed:", err);
+      toast.error("Failed to submit order. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!open) return null;
@@ -142,11 +197,17 @@ const CartPanel = ({ open, onClose }: CartPanelProps) => {
             </div>
 
             <div className="border-t pt-4 space-y-3">
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Estimated Delivery</span>
+                <span className="font-medium text-foreground">{new Date(getDeliveryDate()).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
+              </div>
               <div className="flex justify-between font-semibold">
                 <span>Order Total</span>
                 <span>${totalPrice.toFixed(2)}</span>
               </div>
-              <Button type="submit" className="w-full">Submit & Pay</Button>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit Order"}
+              </Button>
               <Button type="button" variant="outline" className="w-full" onClick={() => setShowCheckout(false)}>
                 Back to Cart
               </Button>
