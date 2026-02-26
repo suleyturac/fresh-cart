@@ -5,15 +5,19 @@ import ProductRow from "@/components/ProductRow";
 import CartPanel from "@/components/CartPanel";
 import { useFirestoreProducts } from "@/hooks/useFirestoreProducts";
 import { useAuth } from "@/context/AuthContext";
+import { useFavorites } from "@/context/FavoritesContext";
 
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const { products, categories, sellers, loading } = useFirestoreProducts();
+  const { favorites } = useFavorites();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSellers, setSelectedSellers] = useState<string[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sortBy, setSortBy] = useState("name-asc");
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const handleSellerToggle = (seller: string) => {
     setSelectedSellers((prev) =>
@@ -21,8 +25,19 @@ const Index = () => {
     );
   };
 
+  const handleShowFavorites = () => {
+    setShowFavorites(!showFavorites);
+    setSelectedCategory(null);
+  };
+
+  const handleCategorySelect = (cat: string | null) => {
+    setSelectedCategory(cat);
+    setShowFavorites(false);
+  };
+
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    let result = products.filter((p) => {
+      if (showFavorites && !favorites.includes(p.id)) return false;
       if (selectedCategory && p.category !== selectedCategory) return false;
       if (selectedSellers.length > 0 && !selectedSellers.includes(p.seller)) return false;
       if (searchQuery) {
@@ -31,13 +46,23 @@ const Index = () => {
       }
       return true;
     });
-  }, [searchQuery, selectedCategory, selectedSellers, products]);
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case "name-desc": return b.name.localeCompare(a.name);
+        case "price-asc": return a.totalPrice - b.totalPrice;
+        case "price-desc": return b.totalPrice - a.totalPrice;
+        default: return a.name.localeCompare(b.name);
+      }
+    });
+
+    return result;
+  }, [searchQuery, selectedCategory, selectedSellers, products, sortBy, showFavorites, favorites]);
 
   if (authLoading) {
     return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading...</div>;
   }
-
-  // Allow guest access - no redirect to login
 
   return (
     <div className="min-h-screen bg-background">
@@ -49,13 +74,18 @@ const Index = () => {
       />
       <Sidebar
         selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
+        onCategorySelect={handleCategorySelect}
         selectedSellers={selectedSellers}
         onSellerToggle={handleSellerToggle}
         categories={categories}
         sellers={sellers}
         mobileOpen={sidebarOpen}
         onMobileClose={() => setSidebarOpen(false)}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        products={products}
+        onShowFavorites={handleShowFavorites}
+        showFavoritesActive={showFavorites}
       />
 
       <main className="pt-14 md:pl-60">
@@ -63,10 +93,10 @@ const Index = () => {
           <p className="text-sm text-muted-foreground">
             {loading ? "Loading products..." : (
               <>Showing <span className="font-medium text-foreground">{filtered.length}</span> products
+              {showFavorites && <span> in <span className="font-medium text-foreground">Favorites</span></span>}
               {selectedCategory && <span> in <span className="font-medium text-foreground">{selectedCategory}</span></span>}</>
             )}
           </p>
-          <p className="text-xs text-muted-foreground">Sort by: Favorites</p>
         </div>
 
         <div>
